@@ -1,0 +1,4 @@
+[run]
+source = pgcrypto_expressions
+omit = pgcrypto_expressions/test/*
+branch = 1

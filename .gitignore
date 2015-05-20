@@ -1,0 +1,6 @@
+django_pgcrypto_expressions.egg-info/
+htmlcov/
+.tox/
+doc/_build/
+dist/
+.coverage
