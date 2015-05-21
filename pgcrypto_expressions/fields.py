@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.expressions import Col
+from django.utils.functional import cached_property
 
 
 class ByteArrayField(models.Field):
@@ -31,9 +33,19 @@ class EncryptedField(models.Field):
         return 'bytea'
 
     def get_placeholder(self, value, compiler, connection):
-        # This is a bit of a hack for creation, until
-        # https://code.djangoproject.com/ticket/24509 is fixed.
         return self._encrypt_sql
 
-    def select_format(self, compiler, sql, params):
+    @cached_property
+    def cached_col(self):
+        return DecryptedCol(
+            self.model._meta.db_table, self, self._decrypt_sql)
+
+
+class DecryptedCol(Col):
+    def __init__(self, alias, target, decrypt_sql, output_field=None):
+        self._decrypt_sql = decrypt_sql
+        super(DecryptedCol, self).__init__(alias, target, output_field)
+
+    def as_sql(self, compiler, connection):
+        sql, params = super(DecryptedCol, self).as_sql(compiler, connection)
         return self._decrypt_sql % sql, params
