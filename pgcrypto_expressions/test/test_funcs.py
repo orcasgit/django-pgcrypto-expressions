@@ -1,8 +1,8 @@
-from django.db import connection
 from django.db.models import TextField, Value as V
 
 from pgcrypto_expressions import funcs
 from .models import ByteArrayModel
+from . import utils
 
 
 class TestPgpSymEncrypt(object):
@@ -10,14 +10,10 @@ class TestPgpSymEncrypt(object):
         ByteArrayModel.objects.create()
         ByteArrayModel.objects.update(
             content=funcs.PgpSymEncrypt(V('hello'), V('secret')))
-        with connection.cursor() as cur:
-            cur.execute(
-                "SELECT pgp_sym_decrypt(content, 'secret') "
-                "FROM test_bytearraymodel"
-            )
-            data = cur.fetchone()[0]
+        data = utils.decrypt_column_values(
+            ByteArrayModel, 'content', 'secret')
 
-        assert data == "hello"
+        assert data == ["hello"]
 
     def test_decrypt(self, db):
         ByteArrayModel.objects.create()

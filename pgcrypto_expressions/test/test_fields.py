@@ -1,4 +1,5 @@
-from .models import ByteArrayModel
+from .models import ByteArrayModel, EncryptedText
+from . import utils
 
 
 class TestByteArrayField(object):
@@ -14,3 +15,18 @@ class TestByteArrayField(object):
         found = ByteArrayModel.objects.get()
 
         assert found.content is None
+
+
+class TestEncryptedTextField(object):
+    def test_create(self, db):
+        EncryptedText.objects.create(text='foo')
+        data = utils.decrypt_column_values(
+            EncryptedText, 'text', 'secret')
+
+        assert data == ['foo']
+
+    def test_create_and_query(self, db):
+        EncryptedText.objects.create(text='foo')
+        found = EncryptedText.objects.get()
+
+        assert found.text == 'foo'
