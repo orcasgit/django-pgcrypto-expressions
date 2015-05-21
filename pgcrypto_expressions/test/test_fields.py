@@ -110,6 +110,13 @@ class TestEncryptedTextField(object):
 
         assert found.value == 'foobar'
 
+    def test_default(self, db):
+        """Field default values are respected."""
+        models.EncryptedText.objects.create()
+        found = models.EncryptedText.objects.get()
+
+        assert found.value == 'hey'
+
 
 class TestEncryptedIntegerField(object):
     def test_gt_lookup(self, db):
@@ -125,3 +132,10 @@ class TestEncryptedIntegerField(object):
         found = models.EncryptedInt.objects.get(value__range=[3, 5])
 
         assert found.value == 4
+
+    def test_nullable(self, db):
+        """Encrypted field inherits nullability from wrapped."""
+        models.EncryptedInt.objects.create(value=None)
+        found = models.EncryptedInt.objects.get()
+
+        assert found.value is None
