@@ -13,3 +13,7 @@ class EncryptedText(models.Model):
 
 class EncryptedInt(models.Model):
     value = fields.EncryptedField(models.IntegerField(), key='secret')
+
+
+class EncryptedDate(models.Model):
+    value = fields.EncryptedField(models.DateField(), key='secret')

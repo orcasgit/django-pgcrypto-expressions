@@ -1,6 +1,8 @@
+from datetime import date, datetime
+
 import pytest
 
-from .models import ByteArrayModel, EncryptedText, EncryptedInt
+from .models import ByteArrayModel, EncryptedText, EncryptedInt, EncryptedDate
 from . import utils
 
 
@@ -26,6 +28,7 @@ class TestByteArrayField(object):
     [
         (EncryptedText, ('foo', 'bar')),
         (EncryptedInt, (1, 2)),
+        (EncryptedDate, (date(2015, 2, 5), date(2015, 2, 8))),
     ],
 )
 class TestEncryptedField(object):
@@ -35,7 +38,13 @@ class TestEncryptedField(object):
         data = utils.decrypt_column_values(
             model, 'value', 'secret')
 
-        assert list(map(type(vals[0]), data)) == [vals[0]]
+        coerce = {
+            EncryptedText: lambda s: s,
+            EncryptedInt: int,
+            EncryptedDate: lambda s: datetime.strptime(s, '%Y-%m-%d').date()
+        }[model]
+
+        assert list(map(coerce, data)) == [vals[0]]
 
     def test_insert_and_select(self, db, model, vals):
         """Data round-trips through insert and select."""
