@@ -47,8 +47,9 @@ To install all the requirements for running the tests::
 
     pip install -r requirements.txt
 
-The tests also require that you have a local PostgreSQL server running with a
-``djpgc`` database.
+The tests also require that you have a local PostgreSQL server running, whose
+``template`` database contains the ``pgcrypto`` extension. (Run ``sudo -u
+postgres psql template1 -c 'CREATE EXTENSION pgcrypto;'`` to add it.)
 
 To run the tests once::
 
