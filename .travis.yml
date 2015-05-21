@@ -22,7 +22,7 @@ install: travis_retry pip install tox coveralls
 
 before_script:
   - psql -c 'create database djpgc;' -U postgres
-  - psql -c 'create extension hstore;' -U postgres djpgc
+  - psql -c 'create extension pgcrypto;' -U postgres djpgc
 
 script: tox -e $TOXENV
 
