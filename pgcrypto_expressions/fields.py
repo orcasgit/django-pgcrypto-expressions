@@ -18,10 +18,19 @@ class ByteArrayField(models.Field):
 
 
 class EncryptedField(models.Field):
+    """A field wrapper to encrypt any field type.
+
+    @@@ TODO:
+    - handle nullability
+    - handle other flags (e.g. empty_strings_allowed)
+    - handle default values
+    - handle custom implementations of various methods (get[_db]_prep*,
+      to_python, from_db_value, formfield)
+
+    """
     encrypt_sql_template = "pgp_sym_encrypt(%%s::text, '%(key)s')"
     decrypt_sql_template = "pgp_sym_decrypt(%%s, '%(key)s')::%(dbtype)s"
 
-    """A field wrapper to encrypt any field type."""
     def __init__(self, wrapped_field, key, **kwargs):
         self.wrapped_field = wrapped_field
         self.wrapped_type = wrapped_field.db_type(connection)
