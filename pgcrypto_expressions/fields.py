@@ -21,7 +21,6 @@ class EncryptedField(models.Field):
     """A field wrapper to encrypt any field type.
 
     @@@ TODO:
-    - check lookups via joins
     - handle indexes
     - handle nullability
     - handle default values
