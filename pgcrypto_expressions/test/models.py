@@ -8,4 +8,8 @@ class ByteArrayModel(models.Model):
 
 
 class EncryptedText(models.Model):
-    text = fields.EncryptedField(models.TextField(), key='secret')
+    value = fields.EncryptedField(models.TextField(), key='secret')
+
+
+class EncryptedInt(models.Model):
+    value = fields.EncryptedField(models.IntegerField(), key='secret')
