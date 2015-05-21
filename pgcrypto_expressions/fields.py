@@ -29,6 +29,10 @@ class EncryptedField(models.Field):
     - handle field class-level flags (e.g. empty_strings_allowed)
     - handle custom implementations of various methods (get[_db]_prep*,
       to_python, from_db_value, formfield) on wrapped field
+    - handle migrations
+    - make it easy to write a migration from a non-encrypted field to an
+      encrypted field.
+    - docs
 
     """
     encrypt_sql_template = "pgp_sym_encrypt(%%s::text, '%(key)s')"
