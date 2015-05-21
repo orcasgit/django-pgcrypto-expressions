@@ -21,11 +21,14 @@ class EncryptedField(models.Field):
     """A field wrapper to encrypt any field type.
 
     @@@ TODO:
+    - check lookups via joins
+    - handle indexes
     - handle nullability
-    - handle other flags (e.g. empty_strings_allowed)
     - handle default values
+    - handle any other field params passed to wrapped field?
+    - handle field class-level flags (e.g. empty_strings_allowed)
     - handle custom implementations of various methods (get[_db]_prep*,
-      to_python, from_db_value, formfield)
+      to_python, from_db_value, formfield) on wrapped field
 
     """
     encrypt_sql_template = "pgp_sym_encrypt(%%s::text, '%(key)s')"
