@@ -18,7 +18,7 @@ django-pgcrypto-expressions
 Django database backends with post-transaction-commit callback hooks.
 
 ``django-pgcrypto-expressions`` supports `Django`_ 1.8.2 and later on Python
-2.6, 2.7, 3.2, 3.3, 3.4, pypy, and pypy3.
+2.7, 3.2, 3.3, 3.4, pypy, and pypy3.
 
 .. _Django: http://www.djangoproject.com/
 
