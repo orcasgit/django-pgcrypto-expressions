@@ -2,11 +2,11 @@
 django-pgcrypto-expressions
 ===========================
 
-.. image:: https://secure.travis-ci.org/orcasinc/django-pgcrypto-expressions.png?branch=master
-   :target: http://travis-ci.org/orcasinc/django-pgcrypto-expressions
+.. image:: https://secure.travis-ci.org/orcasgit/django-pgcrypto-expressions.png?branch=master
+   :target: http://travis-ci.org/orcasgit/django-pgcrypto-expressions
    :alt: Test status
-.. image:: https://coveralls.io/repos/orcasinc/django-pgcrypto-expressions/badge.png?branch=master
-   :target: https://coveralls.io/r/orcasinc/django-pgcrypto-expressions
+.. image:: https://coveralls.io/repos/orcasgit/django-pgcrypto-expressions/badge.png?branch=master
+   :target: https://coveralls.io/r/orcasgit/django-pgcrypto-expressions
    :alt: Test coverage
 .. image:: https://pypip.in/v/django-pgcrypto-expressions/badge.png
    :target: https://pypi.python.org/pypi/django-pgcrypto-expressions
@@ -40,5 +40,5 @@ Contributing
 
 See the `contributing docs`_.
 
-.. _contributing docs: https://github.com/orcasinc/django-pgcrypto-expressions/blob/master/CONTRIBUTING.rst
+.. _contributing docs: https://github.com/orcasgit/django-pgcrypto-expressions/blob/master/CONTRIBUTING.rst
 

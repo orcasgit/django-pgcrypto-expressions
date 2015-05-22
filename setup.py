@@ -22,7 +22,7 @@ setup(
     long_description=long_description,
     author='ORCAS, Inc',
     author_email='orcastech@orcasinc.com',
-    url='https://github.com/orcasinc/django-pgcrypto-expressions/',
+    url='https://github.com/orcasgit/django-pgcrypto-expressions/',
     packages=find_packages(),
     install_requires=['Django>=1.8.2'],
     classifiers=[
