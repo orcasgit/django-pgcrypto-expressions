@@ -1,3 +1,4 @@
+from django.core.exceptions import ImproperlyConfigured
 from django.db import connection, models
 from django.db.models.expressions import Col
 from django.utils.functional import cached_property
@@ -21,7 +22,6 @@ class EncryptedField(models.Field):
     """A field wrapper to encrypt any field type.
 
     @@@ TODO:
-    - handle aliased query (two joins to same table?)
     - handle any other field params passed to wrapped field?
     - handle field class-level flags (e.g. empty_strings_allowed)
     - handle custom implementations of various methods (get[_db]_prep*,
@@ -31,6 +31,7 @@ class EncryptedField(models.Field):
     - make it easy to write a migration from a non-encrypted field to an
       encrypted field.
     - default secret key to a setting
+    - support checks on wrapped field
     - docs (remember need for CREATE EXTENSION pgcrypto, custom backend)
 
     """
@@ -38,6 +39,10 @@ class EncryptedField(models.Field):
     decrypt_sql_template = "pgp_sym_decrypt(%%s, '%(key)s')::%(dbtype)s"
 
     def __init__(self, wrapped_field, key):
+        if wrapped_field.primary_key:
+            raise ImproperlyConfigured(
+                "EncryptedField does not support wrapping a primary key field."
+            )
         self.wrapped_field = wrapped_field
         # @@@ handle multi-db case, look for a PG connection
         self.wrapped_type = wrapped_field.db_type(connection)

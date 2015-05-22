@@ -1,7 +1,8 @@
 from datetime import date, datetime
+from django.core.exceptions import ImproperlyConfigured
 
 from django.db import connection, IntegrityError
-from django.db.models import TextField
+from django.db.models import TextField, IntegerField
 import pytest
 
 from pgcrypto_expressions import fields
@@ -35,6 +36,10 @@ class TestEncryptedField(object):
         f = fields.EncryptedField(TextField("The Field"), 'secret')
 
         assert f.verbose_name == "The Field"
+
+    def test_primary_key_not_allowed(self):
+        with pytest.raises(ImproperlyConfigured):
+            fields.EncryptedField(IntegerField(primary_key=True), 'secret')
 
     def test_deconstruct(self):
         wrapped = TextField()
