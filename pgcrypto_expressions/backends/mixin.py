@@ -4,6 +4,15 @@ from ..fields import EncryptedFieldMixin
 
 
 class DatabaseSchemaEditor(base.DatabaseSchemaEditor):
+    # We can't use self.sql_create_unique, because that adds a unique
+    # constraint rather than a unique index, and PostgreSQL doesn't allow
+    # unique constraints on expressions. Unique indexes on expressions are
+    # allowed and have the same effect as a constraint.
+    sql_create_unique_index = (
+        base.DatabaseSchemaEditor.sql_create_index.replace(
+            'CREATE INDEX', 'CREATE UNIQUE INDEX')
+    )
+
     def _model_indexes_sql(self, model):
         """
         Return all index SQL statements (field indexes, index_together) for the
@@ -19,25 +28,25 @@ class DatabaseSchemaEditor(base.DatabaseSchemaEditor):
         output = []
         table = model._meta.db_table
         decrypt = '(%s)' % (field.decrypt_sql % field.column)
-        create = None
+        create = False
+        unique = False
         if field.unique:
-            create = 'unique'
+            create = unique = True
         elif field.db_index:
             create = True
         if create:
-            # We can't use self.sql_create_unique, because that adds a unique
-            # constraint rather than a unique index, and PostgreSQL doesn't
-            # allow unique constraints on expressions, whereas unique indexes
-            # on expressions are allowed and have the same effect.
-            suffix = '_decrypt_uniq' if create == 'unique' else '_decrypt'
-            sql = self.sql_create_index % {
+            suffix = '_decrypt_uniq' if unique else '_decrypt'
+            template = (
+                self.sql_create_unique_index
+                if unique
+                else self.sql_create_index
+            )
+            sql = template % {
                 'table': table,
                 'name': self._create_index_name(model, [field.column], suffix),
                 'columns': decrypt,
                 'extra': '',
             }
-            if create == 'unique':
-                sql = sql.replace('CREATE INDEX', 'CREATE UNIQUE INDEX')
             output.append(sql)
         return output
 
