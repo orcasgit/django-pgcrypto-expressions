@@ -18,47 +18,35 @@ class ByteArrayField(models.Field):
             return bytearray(value)
 
 
-class EncryptedField(models.Field):
-    """A field wrapper to encrypt any field type.
+class EncryptedFieldMixin(models.Field):
+    """A field mixin to encrypt any field type.
 
     @@@ TODO:
-    - handle any other field params passed to wrapped field?
-    - handle field class-level flags (e.g. empty_strings_allowed)
-    - handle custom implementations of various methods (get[_db]_prep*,
-      to_python, from_db_value, formfield) on wrapped field
     - handle add-field migration
     - handle migration when secret changes (re-create indexes too)
     - make it easy to write a migration from a non-encrypted field to an
       encrypted field.
     - default secret key to a setting
-    - support checks on wrapped field
     - docs (remember need for CREATE EXTENSION pgcrypto, custom backend)
 
     """
     encrypt_sql_template = "pgp_sym_encrypt(%%s::text, '%(key)s')"
     decrypt_sql_template = "pgp_sym_decrypt(%%s, '%(key)s')::%(dbtype)s"
 
-    def __init__(self, wrapped_field, key):
-        if wrapped_field.primary_key:
+    def __init__(self, *args, **kwargs):
+        if kwargs.get('primary_key'):
             raise ImproperlyConfigured(
-                "EncryptedField does not support wrapping a primary key field."
+                "EncryptedFieldMixin does not support primary key fields."
             )
-        self.wrapped_field = wrapped_field
+        self.key = kwargs.pop('key')
+        super(EncryptedFieldMixin, self).__init__(*args, **kwargs)
         # @@@ handle multi-db case, look for a PG connection
-        self.wrapped_type = wrapped_field.db_type(connection)
-        self.key = key
-        self.encrypt_sql = self.encrypt_sql_template % {'key': key}
+        self.base_db_type = super(
+            EncryptedFieldMixin, self
+        ).db_type(connection)
+        self.encrypt_sql = self.encrypt_sql_template % {'key': self.key}
         self.decrypt_sql = self.decrypt_sql_template % {
-            'key': key, 'dbtype': self.wrapped_type}
-        super(EncryptedField, self).__init__()
-        # We intentionally don't copy the db_index or unique properties of the
-        # wrapped field, because indexes on the encrypted column are useless
-        # (the custom backend creates indexes on the decrypt expression
-        # instead, which are useful).
-        self.verbose_name = self.wrapped_field.verbose_name
-        self.name = self.wrapped_field.name
-        self.null = self.wrapped_field.null
-        self.default = self.wrapped_field.default
+            'key': self.key, 'dbtype': self.base_db_type}
 
     def db_type(self, connection):
         return 'bytea'
@@ -83,8 +71,11 @@ class EncryptedField(models.Field):
         )
 
     def deconstruct(self):
-        name, path, args, kwargs = super(EncryptedField, self).deconstruct()
-        return name, path, [self.wrapped_field, self.key], {}
+        name, path, args, kwargs = super(
+            EncryptedFieldMixin, self
+        ).deconstruct()
+        kwargs['key'] = self.key
+        return name, path, args, kwargs
 
 
 class DecryptedCol(Col):
@@ -95,3 +86,15 @@ class DecryptedCol(Col):
     def as_sql(self, compiler, connection):
         sql, params = super(DecryptedCol, self).as_sql(compiler, connection)
         return self.decrypt_sql % sql, params
+
+
+class EncryptedTextField(EncryptedFieldMixin, models.TextField):
+    pass
+
+
+class EncryptedIntegerField(EncryptedFieldMixin, models.IntegerField):
+    pass
+
+
+class EncryptedDateField(EncryptedFieldMixin, models.DateField):
+    pass

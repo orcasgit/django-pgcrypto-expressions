@@ -1,6 +1,6 @@
 from django.db.backends.postgresql_psycopg2 import base
 
-from ..fields import EncryptedField
+from ..fields import EncryptedFieldMixin
 
 
 class DatabaseSchemaEditor(base.DatabaseSchemaEditor):
@@ -11,7 +11,7 @@ class DatabaseSchemaEditor(base.DatabaseSchemaEditor):
         """
         output = super(DatabaseSchemaEditor, self)._model_indexes_sql(model)
         for field in model._meta.fields:
-            if isinstance(field, EncryptedField):
+            if isinstance(field, EncryptedFieldMixin):
                 output.extend(self._encrypted_field_indexes_sql(model, field))
         return output
 
@@ -20,9 +20,9 @@ class DatabaseSchemaEditor(base.DatabaseSchemaEditor):
         table = model._meta.db_table
         decrypt = '(%s)' % (field.decrypt_sql % field.column)
         create = None
-        if field.wrapped_field.unique:
+        if field.unique:
             create = 'unique'
-        elif field.wrapped_field.db_index:
+        elif field.db_index:
             create = True
         if create:
             # We can't use self.sql_create_unique, because that adds a unique

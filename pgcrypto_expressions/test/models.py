@@ -8,8 +8,7 @@ class ByteArrayModel(models.Model):
 
 
 class EncryptedText(models.Model):
-    value = fields.EncryptedField(
-        models.TextField(default='hey'), key='secret')
+    value = fields.EncryptedTextField(default='hey', key='secret')
 
 
 class RelatedText(models.Model):
@@ -18,7 +17,7 @@ class RelatedText(models.Model):
 
 
 class EncryptedInt(models.Model):
-    value = fields.EncryptedField(models.IntegerField(null=True), key='secret')
+    value = fields.EncryptedIntegerField(null=True, key='secret')
 
 
 class RelatedInt(models.Model):
@@ -27,7 +26,7 @@ class RelatedInt(models.Model):
 
 
 class EncryptedDate(models.Model):
-    value = fields.EncryptedField(models.DateField(), key='secret')
+    value = fields.EncryptedDateField(key='secret')
 
 
 class RelatedDate(models.Model):
@@ -36,10 +35,8 @@ class RelatedDate(models.Model):
 
 
 class EncryptedUnique(models.Model):
-    value = fields.EncryptedField(
-        models.TextField(unique=True), key='secret')
+    value = fields.EncryptedTextField(unique=True, key='secret')
 
 
 class EncryptedIndex(models.Model):
-    value = fields.EncryptedField(
-        models.TextField(db_index=True), key='secret')
+    value = fields.EncryptedTextField(db_index=True, key='secret')

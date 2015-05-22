@@ -2,7 +2,6 @@ from datetime import date, datetime
 from django.core.exceptions import ImproperlyConfigured
 
 from django.db import connection, IntegrityError
-from django.db.models import TextField, IntegerField
 import pytest
 
 from pgcrypto_expressions import fields
@@ -28,29 +27,23 @@ class TestByteArrayField(object):
 
 class TestEncryptedField(object):
     def test_name(self):
-        f = fields.EncryptedField(TextField(name='field'), 'secret')
+        f = fields.EncryptedTextField(name='field', key='secret')
 
         assert f.name == 'field'
 
     def test_verbose_name(self):
-        f = fields.EncryptedField(TextField("The Field"), 'secret')
+        f = fields.EncryptedTextField("The Field", key='secret')
 
         assert f.verbose_name == "The Field"
 
     def test_primary_key_not_allowed(self):
         with pytest.raises(ImproperlyConfigured):
-            fields.EncryptedField(IntegerField(primary_key=True), 'secret')
+            fields.EncryptedIntegerField(primary_key=True, key='secret')
 
     def test_deconstruct(self):
-        wrapped = TextField()
-        f = fields.EncryptedField(wrapped, 'secret')
+        f = fields.EncryptedTextField(key='secret')
 
-        assert f.deconstruct() == (
-            None,
-            'pgcrypto_expressions.fields.EncryptedField',
-            [wrapped, 'secret'],
-            {},
-        )
+        assert f.deconstruct()[3]['key'] == 'secret'
 
 
 class TestEncryptedFieldIndexes(object):
@@ -197,7 +190,7 @@ class TestEncryptedIntegerField(object):
         assert found.value == 4
 
     def test_nullable(self, db):
-        """Encrypted field inherits nullability from wrapped."""
+        """Encrypted field can be nullable."""
         models.EncryptedInt.objects.create(value=None)
         found = models.EncryptedInt.objects.get()
 
