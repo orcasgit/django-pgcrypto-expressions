@@ -14,6 +14,7 @@ class EncryptedText(models.Model):
 
 class RelatedText(models.Model):
     related = models.ForeignKey(EncryptedText)
+    related_again = models.ForeignKey(EncryptedText, null=True)
 
 
 class EncryptedInt(models.Model):
@@ -22,6 +23,7 @@ class EncryptedInt(models.Model):
 
 class RelatedInt(models.Model):
     related = models.ForeignKey(EncryptedInt)
+    related_again = models.ForeignKey(EncryptedInt, null=True)
 
 
 class EncryptedDate(models.Model):
@@ -30,6 +32,7 @@ class EncryptedDate(models.Model):
 
 class RelatedDate(models.Model):
     related = models.ForeignKey(EncryptedDate)
+    related_again = models.ForeignKey(EncryptedDate, null=True)
 
 
 class EncryptedUnique(models.Model):

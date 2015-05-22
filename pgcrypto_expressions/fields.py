@@ -61,6 +61,14 @@ class EncryptedField(models.Field):
     def get_placeholder(self, value, compiler, connection):
         return self.encrypt_sql
 
+    def get_col(self, alias, output_field=None):
+        if output_field is None:
+            output_field = self
+        if alias != self.model._meta.db_table or output_field != self:
+            return DecryptedCol(alias, self, self.decrypt_sql, output_field)
+        else:
+            return self.cached_col
+
     @cached_property
     def cached_col(self):
         return DecryptedCol(

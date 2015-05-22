@@ -36,12 +36,25 @@ class TestEncryptedField(object):
 
         assert f.verbose_name == "The Field"
 
+    def test_deconstruct(self):
+        wrapped = TextField()
+        f = fields.EncryptedField(wrapped, 'secret')
+
+        assert f.deconstruct() == (
+            None,
+            'pgcrypto_expressions.fields.EncryptedField',
+            [wrapped, 'secret'],
+            {},
+        )
+
+
+class TestEncryptedFieldIndexes(object):
     def test_unique(self, db):
         models.EncryptedUnique.objects.create(value='one')
         with pytest.raises(IntegrityError):
             models.EncryptedUnique.objects.create(value='one')
 
-    def test_dbindex(self, db):
+    def test_db_index(self, db):
         cur = connection.cursor()
         table = models.EncryptedIndex._meta.db_table
         field = models.EncryptedIndex._meta.get_field('value')
@@ -132,6 +145,19 @@ class TestEncryptedFieldQueries(object):
         found = related_model.objects.get(related__value=vals[0])
 
         assert found.related.value == vals[0]
+
+    def test_double_select_related(self, db, model, vals):
+        """Can select related the same model with an encrypted field twice."""
+        obj = model.objects.create(value=vals[0])
+        obj2 = model.objects.create(value=vals[1])
+        related_model = RELATED[model]
+        related_model.objects.create(related=obj, related_again=obj2)
+        found = related_model.objects.select_related(
+            'related', 'related_again',
+        ).get()
+
+        assert found.related.value == vals[0]
+        assert found.related_again.value == vals[1]
 
 
 class TestEncryptedTextField(object):
