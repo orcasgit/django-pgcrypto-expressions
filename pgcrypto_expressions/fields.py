@@ -25,12 +25,12 @@ class EncryptedField(models.Field):
     - handle field class-level flags (e.g. empty_strings_allowed)
     - handle custom implementations of various methods (get[_db]_prep*,
       to_python, from_db_value, formfield) on wrapped field
-    - handle migrations
+    - handle index creation in migrations (both create model and add field)
     - make it easy to write a migration from a non-encrypted field to an
       encrypted field.
     - default secret key to a setting
-    - docs
-    - index decrypted values (probably needs custom migration)
+    - docs (remember need for CREATE EXTENSION pgcrypto)
+    - index decrypted values
 
     """
     encrypt_sql_template = "pgp_sym_encrypt(%%s::text, '%(key)s')"
@@ -44,6 +44,12 @@ class EncryptedField(models.Field):
         self.decrypt_sql = self.decrypt_sql_template % {
             'key': key, 'dbtype': self.wrapped_type}
         super(EncryptedField, self).__init__()
+        # We intentionally don't copy the db_index or unique properties of the
+        # wrapped field, because indexes on the encrypted column are useless
+        # (the custom backend creates indexes on the decrypt expression
+        # instead, which are useful).
+        self.verbose_name = self.wrapped_field.verbose_name
+        self.name = self.wrapped_field.name
         self.null = self.wrapped_field.null
         self.default = self.wrapped_field.default
 
@@ -60,6 +66,10 @@ class EncryptedField(models.Field):
             self,
             self.decrypt_sql,
         )
+
+    def deconstruct(self):
+        name, path, args, kwargs = super(EncryptedField, self).deconstruct()
+        return name, path, [self.wrapped_field, self.key], {}
 
 
 class DecryptedCol(Col):

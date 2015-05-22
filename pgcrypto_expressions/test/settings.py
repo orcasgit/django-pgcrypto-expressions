@@ -6,7 +6,7 @@ if platform.python_implementation() == 'PyPy':
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'pgcrypto_expressions.backends.postgresql_psycopg2',
         'NAME': 'djpgc',
         'TEST': {
             'NAME': 'djpgc',
@@ -19,3 +19,5 @@ INSTALLED_APPS = [
 ]
 
 SECRET_KEY = 'secret'
+
+SILENCED_SYSTEM_CHECKS = ['1_7.W001']

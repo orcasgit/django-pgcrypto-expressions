@@ -1,7 +1,10 @@
 from datetime import date, datetime
 
+from django.db import IntegrityError
+from django.db.models import TextField
 import pytest
 
+from pgcrypto_expressions import fields
 from . import models, utils
 
 
@@ -22,6 +25,23 @@ class TestByteArrayField(object):
         assert found.content is None
 
 
+class TestEncryptedField(object):
+    def test_name(self):
+        f = fields.EncryptedField(TextField(name='field'), 'secret')
+
+        assert f.name == 'field'
+
+    def test_verbose_name(self):
+        f = fields.EncryptedField(TextField("The Field"), 'secret')
+
+        assert f.verbose_name == "The Field"
+
+    def test_unique(self, db):
+        models.EncryptedUnique.objects.create(value='one')
+        with pytest.raises(IntegrityError):
+            models.EncryptedUnique.objects.create(value='one')
+
+
 RELATED = {
     models.EncryptedText: models.RelatedText,
     models.EncryptedInt: models.RelatedInt,
@@ -37,7 +57,7 @@ RELATED = {
         (models.EncryptedDate, (date(2015, 2, 5), date(2015, 2, 8))),
     ],
 )
-class TestEncryptedField(object):
+class TestEncryptedFieldQueries(object):
     def test_insert(self, db, model, vals):
         """Data stored in DB is actually encrypted."""
         model.objects.create(value=vals[0])

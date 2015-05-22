@@ -30,3 +30,8 @@ class EncryptedDate(models.Model):
 
 class RelatedDate(models.Model):
     related = models.ForeignKey(EncryptedDate)
+
+
+class EncryptedUnique(models.Model):
+    value = fields.EncryptedField(
+        models.TextField(unique=True), key='secret')
