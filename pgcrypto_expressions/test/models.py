@@ -35,3 +35,8 @@ class RelatedDate(models.Model):
 class EncryptedUnique(models.Model):
     value = fields.EncryptedField(
         models.TextField(unique=True), key='secret')
+
+
+class EncryptedIndex(models.Model):
+    value = fields.EncryptedField(
+        models.TextField(db_index=True), key='secret')

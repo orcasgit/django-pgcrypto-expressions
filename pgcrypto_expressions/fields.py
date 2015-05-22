@@ -21,16 +21,17 @@ class EncryptedField(models.Field):
     """A field wrapper to encrypt any field type.
 
     @@@ TODO:
+    - handle aliased query (two joins to same table?)
     - handle any other field params passed to wrapped field?
     - handle field class-level flags (e.g. empty_strings_allowed)
     - handle custom implementations of various methods (get[_db]_prep*,
       to_python, from_db_value, formfield) on wrapped field
-    - handle index creation in migrations (both create model and add field)
+    - handle add-field migration
+    - handle migration when secret changes (re-create indexes too)
     - make it easy to write a migration from a non-encrypted field to an
       encrypted field.
     - default secret key to a setting
-    - docs (remember need for CREATE EXTENSION pgcrypto)
-    - index decrypted values
+    - docs (remember need for CREATE EXTENSION pgcrypto, custom backend)
 
     """
     encrypt_sql_template = "pgp_sym_encrypt(%%s::text, '%(key)s')"
@@ -38,6 +39,7 @@ class EncryptedField(models.Field):
 
     def __init__(self, wrapped_field, key):
         self.wrapped_field = wrapped_field
+        # @@@ handle multi-db case, look for a PG connection
         self.wrapped_type = wrapped_field.db_type(connection)
         self.key = key
         self.encrypt_sql = self.encrypt_sql_template % {'key': key}

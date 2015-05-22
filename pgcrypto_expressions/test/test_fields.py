@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from django.db import IntegrityError
+from django.db import connection, IntegrityError
 from django.db.models import TextField
 import pytest
 
@@ -40,6 +40,18 @@ class TestEncryptedField(object):
         models.EncryptedUnique.objects.create(value='one')
         with pytest.raises(IntegrityError):
             models.EncryptedUnique.objects.create(value='one')
+
+    def test_dbindex(self, db):
+        cur = connection.cursor()
+        table = models.EncryptedIndex._meta.db_table
+        field = models.EncryptedIndex._meta.get_field('value')
+        decrypt = field.decrypt_sql % field.column
+        cur.execute(
+            "EXPLAIN SELECT id FROM %s WHERE %s = 'foo';" % (table, decrypt))
+        explanation = '\n'.join([r[0] for r in cur.fetchall()])
+
+        assert 'Index Scan' in explanation
+        assert '_decrypt' in explanation
 
 
 RELATED = {
