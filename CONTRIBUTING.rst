@@ -49,7 +49,9 @@ To install all the requirements for running the tests::
 
 The tests also require that you have a local PostgreSQL server running, whose
 ``template`` database contains the ``pgcrypto`` extension. (Run ``sudo -u
-postgres psql template1 -c 'CREATE EXTENSION pgcrypto;'`` to add it.)
+postgres psql template1 -c 'CREATE EXTENSION pgcrypto;'`` to add it.) The tests
+will use a database named ``djpgcetest``; if it already exists it will be wiped
+and re-created.
 
 To run the tests once::
 

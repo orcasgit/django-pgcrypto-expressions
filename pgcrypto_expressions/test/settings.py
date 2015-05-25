@@ -7,9 +7,9 @@ if platform.python_implementation() == 'PyPy':
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'djpgc',
+        'NAME': 'djpgcetest',
         'TEST': {
-            'NAME': 'djpgc',
+            'NAME': 'djpgcetest',
         },
     },
 }
