@@ -15,12 +15,14 @@ django-pgcrypto-expressions
    :target: https://pypi.python.org/pypi/django-pgcrypto-expressions
    :alt: License
 
-Django database backends with post-transaction-commit callback hooks.
+Django model fields whose values are encrypted using the ``pgp_sym_encrypt``
+function from `pgcrypto`_.
 
 ``django-pgcrypto-expressions`` supports `Django`_ 1.8.2 and later on Python
 2.7, 3.2, 3.3, 3.4, pypy, and pypy3.
 
 .. _Django: http://www.djangoproject.com/
+.. _pgcrypto: http://www.postgresql.org/docs/9.4/static/pgcrypto.html
 
 
 Getting Help

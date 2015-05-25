@@ -60,17 +60,13 @@ versions) and generate a coverage report in the ``htmlcov/`` directory::
 
     make test
 
-This requires that you have ``python2.6``, ``python2.7``, ``python3.2``,
-``python3.3``, ``python3.4``, ``pypy``, and ``pypy3`` binaries on your system's
-shell path.
+This requires that you have ``python2.7``, ``python3.2``, ``python3.3``,
+``python3.4``, ``pypy``, and ``pypy3`` binaries on your system's shell path.
 
-To install PostgreSQL and create the required database on Debian-based
-systems::
+To install PostgreSQL on Debian-based systems::
 
     $ sudo apt-get install postgresql
-    $ createdb djpgc
 
-You'll also need to run the tests as a user with permission to create
-databases. By default, the tests attempt to connect as a user with your shell
-username. You can override this by setting the environment variable
-``DJPGC_USERNAME``.
+You'll need to run the tests as a user with permission to create databases. By
+default, the tests attempt to connect as a user with your shell username. You
+can override this by setting the environment variable ``DJPGC_USERNAME``.
