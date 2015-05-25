@@ -1,7 +1,6 @@
 from datetime import date, datetime
 from django.core.exceptions import ImproperlyConfigured
 
-from django.db import connection, IntegrityError
 import pytest
 
 from pgcrypto_expressions import fields
@@ -40,29 +39,18 @@ class TestEncryptedField(object):
         with pytest.raises(ImproperlyConfigured):
             fields.EncryptedIntegerField(primary_key=True, key='secret')
 
+    def test_unique_not_allowed(self):
+        with pytest.raises(ImproperlyConfigured):
+            fields.EncryptedIntegerField(unique=True, key='secret')
+
+    def test_db_index_not_allowed(self):
+        with pytest.raises(ImproperlyConfigured):
+            fields.EncryptedIntegerField(db_index=True, key='secret')
+
     def test_deconstruct(self):
         f = fields.EncryptedTextField(key='secret')
 
         assert f.deconstruct()[3]['key'] == 'secret'
-
-
-class TestEncryptedFieldIndexes(object):
-    def test_unique(self, db):
-        models.EncryptedUnique.objects.create(value='one')
-        with pytest.raises(IntegrityError):
-            models.EncryptedUnique.objects.create(value='one')
-
-    def test_db_index(self, db):
-        cur = connection.cursor()
-        table = models.EncryptedIndex._meta.db_table
-        field = models.EncryptedIndex._meta.get_field('value')
-        decrypt = field.decrypt_sql % field.column
-        cur.execute(
-            "EXPLAIN SELECT id FROM %s WHERE %s = 'foo';" % (table, decrypt))
-        explanation = '\n'.join([r[0] for r in cur.fetchall()])
-
-        assert 'Index Scan' in explanation
-        assert '_decrypt' in explanation
 
 
 RELATED = {
@@ -90,7 +78,8 @@ class TestEncryptedFieldQueries(object):
         coerce = {
             models.EncryptedText: lambda s: s,
             models.EncryptedInt: int,
-            models.EncryptedDate: lambda s: datetime.strptime(s, '%Y-%m-%d').date()
+            models.EncryptedDate: (
+                lambda s: datetime.strptime(s, '%Y-%m-%d').date())
         }[model]
 
         assert list(map(coerce, data)) == [vals[0]]

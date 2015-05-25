@@ -32,11 +32,3 @@ class EncryptedDate(models.Model):
 class RelatedDate(models.Model):
     related = models.ForeignKey(EncryptedDate)
     related_again = models.ForeignKey(EncryptedDate, null=True)
-
-
-class EncryptedUnique(models.Model):
-    value = fields.EncryptedTextField(unique=True, key='secret')
-
-
-class EncryptedIndex(models.Model):
-    value = fields.EncryptedTextField(db_index=True, key='secret')

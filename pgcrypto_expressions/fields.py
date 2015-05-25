@@ -22,12 +22,12 @@ class EncryptedFieldMixin(models.Field):
     """A field mixin to encrypt any field type.
 
     @@@ TODO:
-    - handle add-field migration
-    - handle migration when secret changes (re-create indexes too)
+    - handle add-field and remove-field migrations
+    - handle migration when secret changes
     - make it easy to write a migration from a non-encrypted field to an
       encrypted field.
     - default secret key to a setting
-    - docs (remember need for CREATE EXTENSION pgcrypto, custom backend)
+    - docs (CREATE EXTENSION pgcrypto, indexing problems)
 
     """
     encrypt_sql_template = "pgp_sym_encrypt(%%s::text, '%(key)s')"
@@ -37,6 +37,14 @@ class EncryptedFieldMixin(models.Field):
         if kwargs.get('primary_key'):
             raise ImproperlyConfigured(
                 "EncryptedFieldMixin does not support primary key fields."
+            )
+        if kwargs.get('unique'):
+            raise ImproperlyConfigured(
+                "EncryptedFieldMixin does not support unique fields."
+            )
+        if kwargs.get('db_index'):
+            raise ImproperlyConfigured(
+                "EncryptedFieldMixin does not support indexing fields."
             )
         self.key = kwargs.pop('key')
         super(EncryptedFieldMixin, self).__init__(*args, **kwargs)

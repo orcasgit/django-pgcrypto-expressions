@@ -6,7 +6,7 @@ if platform.python_implementation() == 'PyPy':
 
 DATABASES = {
     'default': {
-        'ENGINE': 'pgcrypto_expressions.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'djpgc',
         'TEST': {
             'NAME': 'djpgc',
