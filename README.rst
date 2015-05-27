@@ -8,6 +8,9 @@ django-pgcrypto-expressions
 .. image:: https://coveralls.io/repos/orcasgit/django-pgcrypto-expressions/badge.png?branch=master
    :target: https://coveralls.io/r/orcasgit/django-pgcrypto-expressions
    :alt: Test coverage
+.. image:: https://readthedocs.org/projects/django-pgcrypto-expressions/badge/?version=latest
+   :target: https://readthedocs.org/projects/django-pgcrypto-expressions/?badge=latest
+   :alt: Documentation Status
 .. image:: https://pypip.in/v/django-pgcrypto-expressions/badge.png
    :target: https://pypi.python.org/pypi/django-pgcrypto-expressions
    :alt: Latest version
