@@ -61,8 +61,11 @@ class TestEncryptedField(object):
 
 RELATED = {
     models.EncryptedText: models.RelatedText,
+    models.EncryptedChar: models.RelatedChar,
+    models.EncryptedEmail: models.RelatedEmail,
     models.EncryptedInt: models.RelatedInt,
     models.EncryptedDate: models.RelatedDate,
+    models.EncryptedDateTime: models.RelatedDateTime,
 }
 
 
@@ -70,25 +73,24 @@ RELATED = {
     'model,vals',
     [
         (models.EncryptedText, ('foo', 'bar')),
+        (models.EncryptedChar, ('one', 'two')),
+        (models.EncryptedEmail, ('a@example.com', 'b@example.com')),
         (models.EncryptedInt, (1, 2)),
         (models.EncryptedDate, (date(2015, 2, 5), date(2015, 2, 8))),
+        (
+            models.EncryptedDateTime,
+            (datetime(2015, 2, 5, 3), datetime(2015, 2, 8, 4))),
     ],
 )
 class TestEncryptedFieldQueries(object):
     def test_insert(self, db, model, vals):
         """Data stored in DB is actually encrypted."""
+        field = model._meta.get_field('value')
         model.objects.create(value=vals[0])
         data = utils.decrypt_column_values(
             model, 'value', 'secret')
 
-        coerce = {
-            models.EncryptedText: lambda s: s,
-            models.EncryptedInt: int,
-            models.EncryptedDate: (
-                lambda s: datetime.strptime(s, '%Y-%m-%d').date())
-        }[model]
-
-        assert list(map(coerce, data)) == [vals[0]]
+        assert list(map(field.to_python, data)) == [vals[0]]
 
     def test_insert_and_select(self, db, model, vals):
         """Data round-trips through insert and select."""

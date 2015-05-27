@@ -86,9 +86,21 @@ class EncryptedTextField(EncryptedField, models.TextField):
     pass
 
 
+class EncryptedCharField(EncryptedField, models.CharField):
+    pass
+
+
+class EncryptedEmailField(EncryptedField, models.EmailField):
+    pass
+
+
 class EncryptedIntegerField(EncryptedField, models.IntegerField):
     pass
 
 
 class EncryptedDateField(EncryptedField, models.DateField):
+    pass
+
+
+class EncryptedDateTimeField(EncryptedField, models.DateTimeField):
     pass
