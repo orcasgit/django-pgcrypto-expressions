@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import connection, models
 from django.db.models.expressions import Col
@@ -18,16 +19,8 @@ class ByteArrayField(models.Field):
             return bytearray(value)
 
 
-class EncryptedFieldMixin(models.Field):
-    """A field mixin to encrypt any field type.
-
-    @@@ TODO:
-    - handle add-field and remove-field migrations
-    - handle migration when secret changes
-    - make it easy to write a migration from a non-encrypted field to an
-      encrypted field.
-    - default secret key to a setting
-    - docs (CREATE EXTENSION pgcrypto, indexing problems)
+class EncryptedField(models.Field):
+    """A field mixin to encrypt any field type using pgcrypto.
 
     """
     encrypt_sql_template = "pgp_sym_encrypt(%%s::text, '%(key)s')"
@@ -36,21 +29,21 @@ class EncryptedFieldMixin(models.Field):
     def __init__(self, *args, **kwargs):
         if kwargs.get('primary_key'):
             raise ImproperlyConfigured(
-                "EncryptedFieldMixin does not support primary key fields."
+                "EncryptedField does not support primary key fields."
             )
         if kwargs.get('unique'):
             raise ImproperlyConfigured(
-                "EncryptedFieldMixin does not support unique fields."
+                "EncryptedField does not support unique fields."
             )
         if kwargs.get('db_index'):
             raise ImproperlyConfigured(
-                "EncryptedFieldMixin does not support indexing fields."
+                "EncryptedField does not support indexing fields."
             )
-        self.key = kwargs.pop('key')
-        super(EncryptedFieldMixin, self).__init__(*args, **kwargs)
+        self.key = getattr(settings, 'PGCRYPTO_KEY', settings.SECRET_KEY)
+        super(EncryptedField, self).__init__(*args, **kwargs)
         # @@@ handle multi-db case, look for a PG connection
         self.base_db_type = super(
-            EncryptedFieldMixin, self
+            EncryptedField, self
         ).db_type(connection)
         self.encrypt_sql = self.encrypt_sql_template % {'key': self.key}
         self.decrypt_sql = self.decrypt_sql_template % {
@@ -78,13 +71,6 @@ class EncryptedFieldMixin(models.Field):
             self.decrypt_sql,
         )
 
-    def deconstruct(self):
-        name, path, args, kwargs = super(
-            EncryptedFieldMixin, self
-        ).deconstruct()
-        kwargs['key'] = self.key
-        return name, path, args, kwargs
-
 
 class DecryptedCol(Col):
     def __init__(self, alias, target, decrypt_sql, output_field=None):
@@ -96,13 +82,13 @@ class DecryptedCol(Col):
         return self.decrypt_sql % sql, params
 
 
-class EncryptedTextField(EncryptedFieldMixin, models.TextField):
+class EncryptedTextField(EncryptedField, models.TextField):
     pass
 
 
-class EncryptedIntegerField(EncryptedFieldMixin, models.IntegerField):
+class EncryptedIntegerField(EncryptedField, models.IntegerField):
     pass
 
 
-class EncryptedDateField(EncryptedFieldMixin, models.DateField):
+class EncryptedDateField(EncryptedField, models.DateField):
     pass

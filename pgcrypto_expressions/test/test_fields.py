@@ -26,31 +26,37 @@ class TestByteArrayField(object):
 
 class TestEncryptedField(object):
     def test_name(self):
-        f = fields.EncryptedTextField(name='field', key='secret')
+        f = fields.EncryptedTextField(name='field')
 
         assert f.name == 'field'
 
     def test_verbose_name(self):
-        f = fields.EncryptedTextField("The Field", key='secret')
+        f = fields.EncryptedTextField("The Field")
 
         assert f.verbose_name == "The Field"
 
     def test_primary_key_not_allowed(self):
         with pytest.raises(ImproperlyConfigured):
-            fields.EncryptedIntegerField(primary_key=True, key='secret')
+            fields.EncryptedIntegerField(primary_key=True)
 
     def test_unique_not_allowed(self):
         with pytest.raises(ImproperlyConfigured):
-            fields.EncryptedIntegerField(unique=True, key='secret')
+            fields.EncryptedIntegerField(unique=True)
 
     def test_db_index_not_allowed(self):
         with pytest.raises(ImproperlyConfigured):
-            fields.EncryptedIntegerField(db_index=True, key='secret')
+            fields.EncryptedIntegerField(db_index=True)
 
     def test_deconstruct(self):
-        f = fields.EncryptedTextField(key='secret')
+        f = fields.EncryptedTextField()
 
-        assert f.deconstruct()[3]['key'] == 'secret'
+        assert 'key' not in f.deconstruct()[3]
+
+    def test_PGCRYPTO_KEY_setting(self, settings):
+        settings.PGCRYPTO_KEY = 'other'
+        f = fields.EncryptedTextField()
+
+        assert f.key == 'other'
 
 
 RELATED = {
