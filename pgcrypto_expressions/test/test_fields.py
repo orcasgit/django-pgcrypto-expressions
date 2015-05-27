@@ -192,3 +192,12 @@ class TestEncryptedIntegerField(object):
         found = models.EncryptedInt.objects.get()
 
         assert found.value is None
+
+    def test_ordering(self, db):
+        """Can order by an encrypted field."""
+        models.EncryptedInt.objects.create(value=5)
+        models.EncryptedInt.objects.create(value=2)
+
+        found = models.EncryptedInt.objects.order_by('value')
+
+        assert [f.value for f in found] == [2, 5]
