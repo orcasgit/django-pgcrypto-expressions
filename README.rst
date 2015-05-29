@@ -11,12 +11,9 @@ django-pgcrypto-expressions
 .. image:: https://readthedocs.org/projects/django-pgcrypto-expressions/badge/?version=latest
    :target: https://readthedocs.org/projects/django-pgcrypto-expressions/?badge=latest
    :alt: Documentation Status
-.. image:: https://pypip.in/v/django-pgcrypto-expressions/badge.png
+.. image:: https://badge.fury.io/py/django-pgcrypto-expressions.svg
    :target: https://pypi.python.org/pypi/django-pgcrypto-expressions
    :alt: Latest version
-.. image:: https://pypip.in/license/django-pgcrypto-expressions/badge.png
-   :target: https://pypi.python.org/pypi/django-pgcrypto-expressions
-   :alt: License
 
 Django model fields whose values are encrypted using the ``pgp_sym_encrypt``
 function from `pgcrypto`_.
