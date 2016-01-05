@@ -6,17 +6,16 @@ env:
   # Keep this list up to date using `tox -l`
   matrix:
     - TOXENV=py27-django18
-    - TOXENV=py27-djangotrunk
     - TOXENV=py32-django18
-    - TOXENV=py32-djangotrunk
     - TOXENV=py33-django18
-    - TOXENV=py33-djangotrunk
     - TOXENV=py34-django18
-    - TOXENV=py34-djangotrunk
     - TOXENV=pypy-django18
-    - TOXENV=pypy-djangotrunk
     - TOXENV=pypy3-django18
-    - TOXENV=pypy3-djangotrunk
+    - TOXENV=py27-django19
+    - TOXENV=py34-django19
+    - TOXENV=pypy-django19
+    - TOXENV=flake8
+    - TOXENV=docs
 
 install: travis_retry pip install tox coveralls
 
