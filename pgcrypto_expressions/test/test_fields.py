@@ -88,7 +88,7 @@ class TestEncryptedFieldQueries(object):
         field = model._meta.get_field('value')
         model.objects.create(value=vals[0])
         data = utils.decrypt_column_values(
-            model, 'value', 'secret')
+            model, 'value', 'sec%ret')
 
         assert list(map(field.to_python, data)) == [vals[0]]
 

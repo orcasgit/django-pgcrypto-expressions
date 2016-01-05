@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     'pgcrypto_expressions.test'
 ]
 
-SECRET_KEY = 'secret'
+# Ensure that everything works even with a percent sign in the secret
+SECRET_KEY = 'sec%ret'
 
 SILENCED_SYSTEM_CHECKS = ['1_7.W001']

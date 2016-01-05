@@ -23,8 +23,8 @@ class EncryptedField(models.Field):
     """A field mixin to encrypt any field type using pgcrypto.
 
     """
-    encrypt_sql_template = "pgp_sym_encrypt(%%s::text, '%(key)s')"
-    decrypt_sql_template = "pgp_sym_decrypt(%%s, '%(key)s')::%(dbtype)s"
+    encrypt_sql_template = "pgp_sym_encrypt(%s::text, '{key}')"
+    decrypt_sql_template = "pgp_sym_decrypt({sql}, '{key}')::{dbtype}"
 
     def __init__(self, *args, **kwargs):
         if kwargs.get('primary_key'):
@@ -45,9 +45,12 @@ class EncryptedField(models.Field):
         self.base_db_type = super(
             EncryptedField, self
         ).db_type(connection)
-        self.encrypt_sql = self.encrypt_sql_template % {'key': self.key}
-        self.decrypt_sql = self.decrypt_sql_template % {
-            'key': self.key, 'dbtype': self.base_db_type}
+        # Escape any percent symbols in the key, to avoid them being
+        # interpreted as extra substitution placeholders later on.
+        key = self.key.replace('%', '%%')
+        self.encrypt_sql = self.encrypt_sql_template.format(key=key)
+        self.decrypt_sql = self.decrypt_sql_template.format(
+            key=key, dbtype=self.base_db_type, sql='{sql}')
 
     def db_type(self, connection):
         return 'bytea'
@@ -79,7 +82,7 @@ class DecryptedCol(Col):
 
     def as_sql(self, compiler, connection):
         sql, params = super(DecryptedCol, self).as_sql(compiler, connection)
-        return self.decrypt_sql % sql, params
+        return self.decrypt_sql.format(sql=sql), params
 
 
 class EncryptedTextField(EncryptedField, models.TextField):
