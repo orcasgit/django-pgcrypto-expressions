@@ -12,6 +12,14 @@ DATABASES = {
             'NAME': 'djpgcetest',
         },
     },
+    'secondary': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'djpgcetest_two',
+        'TEST': {
+            'NAME': 'djpgcetest_two',
+        },
+        'PGCRYPTO_KEY': 'secondary_key',
+    },
 }
 
 INSTALLED_APPS = [
