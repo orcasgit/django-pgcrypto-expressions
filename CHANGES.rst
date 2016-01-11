@@ -4,6 +4,8 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Drop support for Python 3.2 and 3.3.
+
 * Allow setting PGCRYPTO_KEY per-database in a multi-db setup. Thanks Joey
   Wilhelm. Merge of GH-4, fixes GH-2.
 

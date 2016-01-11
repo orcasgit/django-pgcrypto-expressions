@@ -10,7 +10,7 @@ Prerequisites
 -------------
 
 ``django-pgcrypto-expressions`` supports `Django`_ 1.8.2 and later on Python
-2.7, 3.2, 3.3, 3.4, pypy, and pypy3. PostgreSQL is required.
+2.7, 3.4, pypy, and pypy3. PostgreSQL is required.
 
 .. _Django: http://www.djangoproject.com/
 
