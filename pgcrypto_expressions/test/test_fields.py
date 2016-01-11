@@ -1,5 +1,8 @@
 from datetime import date, datetime
 from django.core.exceptions import ImproperlyConfigured
+from django.db import connection, connections
+from django.db.models.sql.compiler import SQLInsertCompiler
+from django.db.models.sql.query import Query
 
 import pytest
 
@@ -55,8 +58,16 @@ class TestEncryptedField(object):
     def test_PGCRYPTO_KEY_setting(self, settings):
         settings.PGCRYPTO_KEY = 'other'
         f = fields.EncryptedTextField()
+        placeholder = f.get_placeholder('test', None, connection)
 
-        assert f.key == 'other'
+        assert 'other' in placeholder
+
+    def test_PGCRYPTO_KEY_setting_per_database_encrypt(self, db):
+        conn = connections['secondary']
+        f = fields.EncryptedTextField()
+        placeholder = f.get_placeholder('test', None, conn)
+
+        assert 'secondary_key' in placeholder
 
 
 RELATED = {
@@ -153,6 +164,17 @@ class TestEncryptedFieldQueries(object):
 
         assert found.related.value == vals[0]
         assert found.related_again.value == vals[1]
+
+    def test_PGCRYPT_KEY_setting_per_database_decrypt(self, db, model, vals):
+        conn = connections['secondary']
+        obj = model(value=vals[0])
+        field = obj._meta.get_field('value')
+        col = field.get_col(obj._meta.db_table)
+        query = Query(model)
+        compiler = SQLInsertCompiler(query, conn, 'secondary')
+        sql, params = col.as_sql(compiler, conn)
+
+        assert 'secondary_key' in sql
 
 
 class TestEncryptedTextField(object):

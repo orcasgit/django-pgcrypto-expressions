@@ -74,6 +74,23 @@ Encryption Key
 By default your ``SECRET_KEY`` setting is used as the encryption and decryption
 key. You can override this by setting a ``PGCRYPTO_KEY`` setting.
 
+Alternatively, if you are using multiple databases, you can specify a
+``PGCRYPTO_KEY`` per database in your ``DATABASES`` setting. For example::
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'PGCRYPTO_KEY': 'super_secret_key',
+            ...
+        },
+        'secondary': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'PGCRYPTO_KEY': 'totally_different_secret_key',
+            ...
+        },
+    }
+
+
 .. warning::
 
    Since encryption is performed on the database server, your encryption key is
