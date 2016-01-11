@@ -88,11 +88,12 @@ class DecryptedCol(Col):
 
     def as_sql(self, compiler, connection):
         sql, params = super(DecryptedCol, self).as_sql(compiler, connection)
-        return self.decrypt_sql_template.format(
+        decrypt_sql = self.decrypt_sql_template.format(
             key=self.target._get_encryption_key(connection),
             dbtype=self.target._get_base_db_type(connection),
             sql=sql
-        ), params
+        )
+        return decrypt_sql, params
 
 
 class EncryptedTextField(EncryptedField, models.TextField):
