@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.db import connection, models
+from django.db import models
 from django.db.models.expressions import Col
 from django.utils.functional import cached_property
 
@@ -41,10 +41,6 @@ class EncryptedField(models.Field):
             )
         self.key = getattr(settings, 'PGCRYPTO_KEY', settings.SECRET_KEY)
         super(EncryptedField, self).__init__(*args, **kwargs)
-        # @@@ handle multi-db case, look for a PG connection
-        self.base_db_type = super(
-            EncryptedField, self
-        ).db_type(connection)
 
     def db_type(self, connection):
         return 'bytea'
@@ -58,6 +54,9 @@ class EncryptedField(models.Field):
         # interpreted as extra substitution placeholders later on.
         key = key.replace('%', '%%')
         return key
+
+    def _get_base_db_type(self, connection):
+        return super(EncryptedField, self).db_type(connection)
 
     def get_placeholder(self, value, compiler, connection):
         key = self._get_encryption_key(connection)
@@ -88,14 +87,12 @@ class DecryptedCol(Col):
         super(DecryptedCol, self).__init__(alias, target, output_field)
 
     def as_sql(self, compiler, connection):
-        key = self.target._get_encryption_key(connection)
-        decrypt_sql = self.decrypt_sql_template.format(
-            key=key,
-            dbtype=self.target.base_db_type,
-            sql='{sql}'
-        )
         sql, params = super(DecryptedCol, self).as_sql(compiler, connection)
-        return decrypt_sql.format(sql=sql), params
+        return self.decrypt_sql_template.format(
+            key=self.target._get_encryption_key(connection),
+            dbtype=self.target._get_base_db_type(connection),
+            sql=sql
+        ), params
 
 
 class EncryptedTextField(EncryptedField, models.TextField):
